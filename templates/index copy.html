@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Text to Speech App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #15181d;
+      color: #f7f7f7;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+    .tts-container {
+      background: #23272f;
+      border-radius: 1.5rem;
+      padding: 2rem;
+      box-shadow: 0 8px 24px rgba(20,20,20,0.15);
+      max-width: 420px;
+      width: 100%;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      letter-spacing: -1px;
+      text-align: center;
+    }
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      border-radius: 0.75rem;
+      border: none;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      background: #181c22;
+      color: #fafafa;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+    select, button {
+      padding: 0.75rem 1rem;
+      border-radius: 0.75rem;
+      border: none;
+      margin-right: 0.5rem;
+      font-size: 1rem;
+      background: #292e36;
+      color: #fff;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button {
+      background: #3f8efc;
+      font-weight: 600;
+    }
+    button:hover {
+      background: #005be8;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    @media (max-width: 500px) {
+      .tts-container { padding: 1rem; }
+      h1 { font-size: 1.4rem; }
+      .controls { flex-direction: column; align-items: stretch; }
+      button, select { width: 100%; margin-right: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="tts-container">
+    <h1>Text to Speech Demo</h1>
+    <textarea id="text-input" placeholder="Enter text here...">Hello! This is a text to speech demo website.</textarea>
+    <div class="controls">
+      <select id="voiceSelect"></select>
+      <button id="speakBtn">Speak</button>
+      <button id="stopBtn" style="background:#e74c3c;">Stop</button>
+    </div>
+    <div style="text-align:center;font-size:0.95rem;color:#888;">
+      Powered by <a href="https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis" style="color:#6eb6ff" target="_blank">Web Speech API</a>
+    </div>
+  </div>
+  <script>
+    const speakBtn = document.getElementById('speakBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const textInput = document.getElementById('text-input');
+    const voiceSelect = document.getElementById('voiceSelect');
+
+    let voices = [];
+
+    function loadVoices() {
+      voices = window.speechSynthesis.getVoices();
+      voiceSelect.innerHTML = '';
+      voices.forEach((voice, i) => {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = `${voice.name} (${voice.lang})${voice.default ? ' [default]' : ''}`;
+        voiceSelect.appendChild(option);
+      });
+    }
+
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    loadVoices();
+
+    let utterance;
+
+    speakBtn.onclick = function () {
+      if (utterance && speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+      }
+      const text = textInput.value.trim();
+      if (!text) return;
+      utterance = new SpeechSynthesisUtterance(text);
+      const selectedVoice = voices[voiceSelect.value];
+      if (selectedVoice) utterance.voice = selectedVoice;
+      speechSynthesis.speak(utterance);
+    };
+
+    stopBtn.onclick = function () {
+      speechSynthesis.cancel();
+    };
+  </script>
+</body>
+</html>
